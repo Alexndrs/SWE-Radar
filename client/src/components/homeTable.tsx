@@ -6,6 +6,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Checkbox } from "./ui/checkbox"
+
+import ToolTipReferral from "./toolTipReferral"
+import BtnArrow from "./btnArrow"
 
 const items = [
   {
@@ -15,7 +19,7 @@ const items = [
     date: "15 minutes ago",
     location: "San Francisco, US",
     link: "https://example.com/job/software-engineer-intern",
-    potentialReferral: [{ name: "Alex Thompson", image: "https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/exp1/avatar-40-02_upqrxi.jpg", linkedin: "https://www.linkedin.com/in/alexthompson" }]
+    potentialReferral: [{ name: "Alex Thompson", image: "https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/exp1/avatar-40-02_upqrxi.jpg", linkedin: "https://www.linkedin.com/in/alexthompson" }, { name: "Sarah Chen", image: "https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/exp1/avatar-40-01_ij9v7j.jpg", linkedin: "https://www.linkedin.com/in/sarahChen" }]
   },
   {
     id: "2",
@@ -34,12 +38,13 @@ export default function HomeTable() {
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead>Job</TableHead>
+            <TableHead>Job Title</TableHead>
             <TableHead>Compagnie</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Location</TableHead>
             <TableHead>Link</TableHead>
-            <TableHead className="text-right">Potential Referral</TableHead>
+            <TableHead>Potential Referral</TableHead>
+            <TableHead className="text-right">Applied?</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -49,16 +54,15 @@ export default function HomeTable() {
               <TableCell>{item.compagnie}</TableCell>
               <TableCell>{item.date}</TableCell>
               <TableCell>{item.location}</TableCell>
-              <TableCell><a href={item.link}>{item.link}</a></TableCell>
+              <TableCell><a href={item.link}><BtnArrow content="apply" /></a></TableCell>
+              <TableCell>
+                <div className="flex items-center justify-center mr-5">
+                  <ToolTipReferral potentialReferral={item.potentialReferral} />
+                </div>
+              </TableCell>
               <TableCell className="text-right">
-                <div className="flex items-center justify-center">
-                  <img
-                    className="rounded-full"
-                    src={item.potentialReferral[0].image}
-                    width={40}
-                    height={40}
-                    alt={item.potentialReferral[0].name}
-                  />
+                <div className="mr-7">
+                  <Checkbox />
                 </div>
               </TableCell>
             </TableRow>

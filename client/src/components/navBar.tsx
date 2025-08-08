@@ -17,10 +17,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import ThemeToggler from "./themeToggler"
 
 const navigationLinks = [
   { href: "/", label: "Home" },
-  { href: "/new", label: "New" },
   { href: "/dashboard", label: "Dashboard" }
 ]
 
@@ -118,6 +118,8 @@ export default function NavBar() {
         </div>
         {/* Right side */}
         <div className="flex flex-1 items-center justify-end gap-2">
+          {/* Notification */}
+          <NotificationMenu />
           {/* Mail input */}
           <div className="relative max-w-xs">
             <Input
@@ -130,8 +132,7 @@ export default function NavBar() {
               <AtSign size={16} />
             </div>
           </div>
-          {/* Notification */}
-          <NotificationMenu />
+          <ThemeToggler />
         </div>
       </div>
       {/* Bottom navigation */}
