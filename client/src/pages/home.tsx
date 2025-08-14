@@ -350,7 +350,7 @@ export default function Home() {
             </div>
 
 
-            <div className=" my-8 bg-gray-500/10 py-2 px-8 rounded-full flex flex-col">
+            <div className=" my-8 bg-gray-500/10 py-2 pl-8 pr-2 rounded-lg flex flex-col">
 
 
                 <div className="flex justify-between items-center">
@@ -361,7 +361,7 @@ export default function Home() {
                         <button
                             onClick={handleUndo}
                             disabled={actionHistory.length === 0}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors duration-200 ${actionHistory.length > 0
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors hover:cursor-pointer duration-200 ${actionHistory.length > 0
                                 ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
                                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                 }`}
@@ -371,7 +371,7 @@ export default function Home() {
                         </button>
                         <button
                             onClick={handleReset}
-                            className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors duration-200"
+                            className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 hover:cursor-pointer text-white rounded-lg transition-colors duration-200"
                         >
                             <RotateCcw size={16} />
                             Reset
