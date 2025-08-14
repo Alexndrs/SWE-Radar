@@ -2,9 +2,13 @@ import { ArrowRightIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
-export default function BtnArrow({ content }: { content: string }) {
+export default function BtnArrow({ content, onClick, icon }: { content: string, onClick?: () => void, icon?: string }) {
   return (
-    <Button className="group">
+    <Button className="group hover:cursor-pointer" onClick={onClick}>
+      {icon && (<img
+        src={icon}
+        className="w-6 h-6"
+      />)}
       {content}
       <ArrowRightIcon
         className="-me-1 opacity-60 transition-transform group-hover:translate-x-0.5"
