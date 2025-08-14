@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BtnArrow from "@/components/btnArrow";
+import { RotateCcw, Undo2 } from "lucide-react";
+
 
 const links = [
     {
@@ -217,27 +219,171 @@ function getFaviconUrl(url: string) {
 
 export default function Home() {
     const [remainingLinks, setRemainingLinks] = useState(links);
+    const [actionHistory, setActionHistory] = useState([]);
 
-    const handleClick = (index: number) => {
-        window.open(remainingLinks[index].href, "_blank", "noopener,noreferrer");
-        setRemainingLinks((prev) => prev.filter((_, i) => i !== index));
+
+
+    useEffect(() => {
+        const savedCheckedLinks = localStorage.getItem('checkedInternshipLinks');
+        const savedHistory = localStorage.getItem('actionHistory');
+
+        if (savedCheckedLinks) {
+            const checkedIndices = JSON.parse(savedCheckedLinks);
+            const remaining = links.filter((_, index) => !checkedIndices.includes(index));
+            setRemainingLinks(remaining);
+        }
+
+        if (savedHistory) {
+            setActionHistory(JSON.parse(savedHistory));
+        }
+    }, []);
+
+
+    const saveProgress = (checkedIndices, history = null) => {
+        localStorage.setItem('checkedInternshipLinks', JSON.stringify(checkedIndices));
+        if (history !== null) {
+            localStorage.setItem('actionHistory', JSON.stringify(history));
+        }
     };
+
+
+    const getCheckedIndices = () => {
+        return links.map((link, index) =>
+            remainingLinks.find(remaining => remaining.href === link.href) ? null : index
+        ).filter(index => index !== null);
+    };
+
+
+
+    const handleClick = (index) => {
+        const linkToRemove = remainingLinks[index];
+        const originalIndex = links.findIndex(link => link.href === linkToRemove.href);
+
+        // Ajouter l'action à l'historique
+        const newHistory = [...actionHistory, {
+            type: 'REMOVE',
+            link: linkToRemove,
+            originalIndex: originalIndex,
+            timestamp: Date.now()
+        }];
+        setActionHistory(newHistory);
+
+        window.open(linkToRemove.href, "_blank", "noopener,noreferrer");
+
+        const newRemainingLinks = remainingLinks.filter((_, i) => i !== index);
+        setRemainingLinks(newRemainingLinks);
+
+        // Calculer les nouveaux indices consultés et sauvegarder
+        const newCheckedIndices = [...getCheckedIndices(), originalIndex];
+        saveProgress(newCheckedIndices, newHistory);
+    };
+
+
+
+    const handleReset = () => {
+        setRemainingLinks(links);
+        setActionHistory([]);
+        storage.removeItem('checkedInternshipLinks');
+        storage.removeItem('actionHistory');
+    };
+
+    const handleUndo = () => {
+        if (actionHistory.length === 0) return;
+
+        const lastAction = actionHistory[actionHistory.length - 1];
+
+        if (lastAction.type === 'REMOVE') {
+            // Remettre le lien à sa position originale dans la liste des liens restants
+            const newRemainingLinks = [...remainingLinks];
+
+            // Trouver où insérer le lien pour maintenir l'ordre original
+            let insertIndex = 0;
+            for (let i = 0; i < newRemainingLinks.length; i++) {
+                const currentOriginalIndex = links.findIndex(link => link.href === newRemainingLinks[i].href);
+                if (currentOriginalIndex > lastAction.originalIndex) {
+                    break;
+                }
+                insertIndex++;
+            }
+
+            newRemainingLinks.splice(insertIndex, 0, lastAction.link);
+            setRemainingLinks(newRemainingLinks);
+
+            // Supprimer la dernière action de l'historique
+            const newHistory = actionHistory.slice(0, -1);
+            setActionHistory(newHistory);
+
+            // Mettre à jour le localStorage
+            const newCheckedIndices = getCheckedIndices().filter(index => index !== lastAction.originalIndex);
+            saveProgress(newCheckedIndices, newHistory);
+        }
+    };
+
+
 
     return (
         <div className="max-w-[80vw] mx-auto">
+            <div className=" my-8 bg-gray-500/10 p-2 pl-4 rounded-lg flex flex-col">
+
+
+
+                <div className="flex justify-between items-center">
+                    <div className="text-lg font-semibold">
+                        {links.length - remainingLinks.length}/{links.length} companies checked
+                    </div>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={handleUndo}
+                            disabled={actionHistory.length === 0}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 ${actionHistory.length > 0
+                                ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                }`}
+                        >
+                            <Undo2 size={16} />
+                            Undo
+                        </button>
+                        <button
+                            onClick={handleReset}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200"
+                        >
+                            <RotateCcw size={16} />
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+
+                {actionHistory.length > 0 && (
+                    <div>
+                        <div className="flex flex-wrap gap-2 max-h-20 overflow-y-auto items-baseline">
+                            <div className="text-xs text-gray-500/50">
+                                last checked :
+                            </div>
+                            {actionHistory.slice(-5).reverse().map((action, idx) => (
+                                <span key={idx} className="text-xs bg-gray-500/10 px-3 py-1 rounded-full text-gray-500/80">
+                                    {action.link.label}
+                                </span>
+                            ))}
+                            {actionHistory.length > 5 && (
+                                <span className="text-xs text-gray-500/50">
+                                    +{actionHistory.length - 5} autres...
+                                </span>
+                            )}
+                        </div>
+
+                    </div>
+                )}
+            </div>
             {remainingLinks.length === 0 ? (
-                <div className="text-center my-8 font-bold text-lg">
-                    All links have been checked. Good Job!
+                <div className="text-center my-8 p-6 bg-green-100 text-green-800 font-bold text-xl rounded-lg">
+                    🎉 All job checked, Good work !
                 </div>
-            ) : (
-                <div className="text-center my-8 font-bold text-lg">
-                    {links.length - remainingLinks.length}/{links.length}
-                </div>
-            )}
+            ) : null}
 
             <div className="text-center my-8 flex flex-col items-start gap-2">
                 {remainingLinks.map((link, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
+                    <div key={`${link.href}-${idx}`} className="flex items-center gap-2">
                         <BtnArrow
                             content={link.label}
                             onClick={() => handleClick(idx)}
