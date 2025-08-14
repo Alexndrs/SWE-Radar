@@ -29,11 +29,11 @@ const links: Link[] = [
         label: "Meta Careers",
     },
     {
-        href: "https://jobs.careers.microsoft.com/global/en/search?p=Research%2C%20Applied%2C%20%26%20Data%20Sciences&p=Software%20Engineering&d=Research%20Sciences&et=Internship&l=en_us&pg=1&pgSz=20&o=Relevance&flt=true",
+        href: "https://jobs.careers.microsoft.com/global/en/search?p=Software%20Engineering&et=Internship&l=en_us&pg=1&pgSz=20&o=Recent&flt=true",
         label: "Microsoft Careers",
     },
     {
-        href: "https://amazon.jobs/fr/search?offset=0&result_limit=10&sort=relevant&category%5B%5D=software-development&category%5B%5D=machine-learning-science&country%5B%5D=USA&country%5B%5D=CAN&category_type=studentprograms&distanceType=Mi&radius=24km&latitude=&longitude=&loc_group_id=&loc_query=&base_query=test&city=&country=&region=&county=&query_options=&",
+        href: "https://amazon.jobs/fr/search?offset=0&result_limit=10&sort=relevant&category%5B%5D=software-development&category%5B%5D=machine-learning-science&country%5B%5D=USA&distanceType=Mi&radius=24km&latitude=&longitude=&loc_group_id=&loc_query=&base_query=intern&city=&country=&region=&county=&query_options=&",
         label: "Amazon Jobs",
     },
     {
