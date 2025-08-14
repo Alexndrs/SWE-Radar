@@ -9,7 +9,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  base: "/SWE-Radar/",
+  base: "/internshipFast/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
