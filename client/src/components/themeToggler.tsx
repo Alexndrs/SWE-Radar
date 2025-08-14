@@ -22,7 +22,7 @@ export default function ThemeToggler() {
           onChange={handleThemeChange}
         />
         <label
-          className="group border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground peer-focus-visible:border-ring peer-focus-visible:ring-ring/50 relative inline-flex size-9 items-center justify-center rounded-md border shadow-xs transition-[color,box-shadow] outline-none peer-focus-visible:ring-[3px]"
+          className="group border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground peer-focus-visible:border-ring peer-focus-visible:ring-ring/50 relative inline-flex size-9 items-center justify-center rounded-full border shadow-xs transition-[color,box-shadow] outline-none peer-focus-visible:ring-[3px]"
           htmlFor={id}
           aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
         >

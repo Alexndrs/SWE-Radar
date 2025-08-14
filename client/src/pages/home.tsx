@@ -1,9 +1,25 @@
 import { useState, useEffect } from "react";
 import BtnArrow from "@/components/btnArrow";
 import { RotateCcw, Undo2 } from "lucide-react";
+import ThemeToggler from "@/components/themeToggler";
 
 
-const links = [
+interface Link {
+    href: string;
+    label: string;
+    warning?: string;
+}
+
+interface Action {
+    type: 'REMOVE';
+    link: Link;
+    originalIndex: number;
+    timestamp: number;
+}
+
+
+
+const links: Link[] = [
     {
         href: "https://www.google.com/about/careers/applications/jobs/results/?hl=en_US&employment_type=INTERN",
         label: "Google Careers",
@@ -31,7 +47,7 @@ const links = [
     {
         href: "https://www.tesla.com/careers/search/?department=ai-robotics&type=fulltime&site=US",
         label: "Tesla Careers",
-        warining: "internship with no return to school should browse full-time jobs + should check for CA/FR"
+        warning: "internship with no return to school should browse full-time jobs + should check for CA/FR"
     },
     {
         href: "https://explore.jobs.netflix.net/careers?query=internship&location=any&pid=790304043022&Teams=Engineering&domain=netflix.com&sort_by=relevance&triggerGoButton=false",
@@ -212,14 +228,14 @@ const links = [
 ];
 
 
-function getFaviconUrl(url: string) {
+function getFaviconUrl(url: string): string {
     const domain = new URL(url).hostname;
     return `https://www.google.com/s2/favicons?sz=64&domain_url=${domain}`;
 }
 
 export default function Home() {
-    const [remainingLinks, setRemainingLinks] = useState(links);
-    const [actionHistory, setActionHistory] = useState([]);
+    const [remainingLinks, setRemainingLinks] = useState<Link[]>(links);
+    const [actionHistory, setActionHistory] = useState<Action[]>([]);
 
 
 
@@ -234,14 +250,18 @@ export default function Home() {
         }
 
         if (savedHistory) {
-            setActionHistory(JSON.parse(savedHistory));
+            const parsedHistory = JSON.parse(savedHistory).map((action: Action) => ({
+                ...action,
+                type: action.type as 'REMOVE'
+            }));
+            setActionHistory(parsedHistory);
         }
     }, []);
 
 
-    const saveProgress = (checkedIndices, history = null) => {
+    const saveProgress = (checkedIndices: number[], history?: Action[] | null) => {
         localStorage.setItem('checkedInternshipLinks', JSON.stringify(checkedIndices));
-        if (history !== null) {
+        if (history !== null && history !== undefined) {
             localStorage.setItem('actionHistory', JSON.stringify(history));
         }
     };
@@ -255,13 +275,13 @@ export default function Home() {
 
 
 
-    const handleClick = (index) => {
+    const handleClick = (index: number) => {
         const linkToRemove = remainingLinks[index];
         const originalIndex = links.findIndex(link => link.href === linkToRemove.href);
 
         // Ajouter l'action à l'historique
         const newHistory = [...actionHistory, {
-            type: 'REMOVE',
+            type: "REMOVE" as const,
             link: linkToRemove,
             originalIndex: originalIndex,
             timestamp: Date.now()
@@ -283,8 +303,8 @@ export default function Home() {
     const handleReset = () => {
         setRemainingLinks(links);
         setActionHistory([]);
-        storage.removeItem('checkedInternshipLinks');
-        storage.removeItem('actionHistory');
+        localStorage.removeItem('checkedInternshipLinks');
+        localStorage.removeItem('actionHistory');
     };
 
     const handleUndo = () => {
@@ -323,8 +343,14 @@ export default function Home() {
 
     return (
         <div className="max-w-[80vw] mx-auto">
-            <div className=" my-8 bg-gray-500/10 p-2 pl-4 rounded-lg flex flex-col">
 
+            <div className="flex justify-between items-center my-4 py-4 border-b-1 border-gray-500/10">
+                <h1 className="text-2xl font-black">internshipFast</h1>
+                <ThemeToggler />
+            </div>
+
+
+            <div className=" my-8 bg-gray-500/10 py-2 px-8 rounded-full flex flex-col">
 
 
                 <div className="flex justify-between items-center">
@@ -335,7 +361,7 @@ export default function Home() {
                         <button
                             onClick={handleUndo}
                             disabled={actionHistory.length === 0}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 ${actionHistory.length > 0
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors duration-200 ${actionHistory.length > 0
                                 ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
                                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                 }`}
@@ -345,7 +371,7 @@ export default function Home() {
                         </button>
                         <button
                             onClick={handleReset}
-                            className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200"
+                            className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors duration-200"
                         >
                             <RotateCcw size={16} />
                             Reset
@@ -367,7 +393,7 @@ export default function Home() {
                             ))}
                             {actionHistory.length > 5 && (
                                 <span className="text-xs text-gray-500/50">
-                                    +{actionHistory.length - 5} autres...
+                                    +{actionHistory.length - 5} other...
                                 </span>
                             )}
                         </div>
@@ -383,12 +409,20 @@ export default function Home() {
 
             <div className="text-center my-8 flex flex-col items-start gap-2">
                 {remainingLinks.map((link, idx) => (
-                    <div key={`${link.href}-${idx}`} className="flex items-center gap-2">
-                        <BtnArrow
-                            content={link.label}
-                            onClick={() => handleClick(idx)}
-                            icon={getFaviconUrl(link.href)}
-                        />
+                    <div key={`${link.href}-${idx}`} className="flex items-stretch gap-2 w-full">
+                        <div>
+                            <BtnArrow
+                                content={link.label}
+                                onClick={() => handleClick(idx)}
+                                icon={getFaviconUrl(link.href)}
+                            />
+                        </div>
+                        {link.warning && (
+                            <div className="flex-1 bg-amber-500/10 text-amber-400/80 text-xs py-2 px-4 border-l-8 border-amber-400 text-start">
+                                {link.warning}
+                            </div>
+                        )
+                        }
                     </div>
                 ))}
             </div>

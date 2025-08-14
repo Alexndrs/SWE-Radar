@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 
 export default function BtnArrow({ content, onClick, icon }: { content: string, onClick?: () => void, icon?: string }) {
   return (
-    <Button className="group hover:cursor-pointer" onClick={onClick}>
+    <Button className="group hover:cursor-pointer py-5 rounded-full min-w-55" onClick={onClick}>
       {icon && (<img
         src={icon}
         className="w-6 h-6"
